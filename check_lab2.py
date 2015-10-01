@@ -48,11 +48,10 @@ def clean_env():
         if not os.path.exists(os.path.join(thisdir, "env", f)):
             log_exit("missing '%s' file in test dir" % f)
 
-    for f in pwfiles:
-        sh("mv /etc/%s /etc/%s.bak" % (f, f))
-        sh("cp %s/env/%s /etc/%s" % (thisdir, f, f))
-
     atexit.register(restore_env)
+    for f in pwfiles:
+        sh("cp /etc/%s /etc/%s.bak" % (f, f))
+        sh("cp %s/env/%s /etc/%s" % (thisdir, f, f))
 
 def restore_env():
     for f in pwfiles:
