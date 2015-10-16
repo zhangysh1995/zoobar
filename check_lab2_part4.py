@@ -231,8 +231,10 @@ def check_hello():
 #there has got to be a better way...
 def check_myprofile():
     code = file_read(os.path.join(thisdir, "profiles", "my-profile.py"))
-    code += "\nprint 'SUCCESS'"
-    ret = check_profile_internal("Challenge 2: my-profile functional", code, "SUCCESS")
+
+    # . is sufficient for matching, since check_profile_internal will already
+    # check if the code generates a Traceback, and fail if it does.
+    ret = check_profile_internal("Challenge 2: my-profile functional", code, ".")
     if not ret:
         log(red("FAIL"), "Challenge 2: Profile my-profile doesn't seem to parse correctly")
     else:
