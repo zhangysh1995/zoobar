@@ -14,8 +14,7 @@
 	xorl	%eax,%eax		/* get a 32-bit zero value */
 	movb	%al,(STRLEN)(%esi)	/* null-terminate our string */
 
-	movb	$0xb,%al                /* syscall arg 1: syscall number */
-	subb    $0x1,%al                /* the syscall number is actually 0xa (SYS_unlink), but 0xa is '\n', fuck.. */
+	movb	$SYS_unlink,%al         /* syscall arg 1: syscall number */
 	movl	%esi,%ebx		/* syscall arg 2: string pathname */
 	int	$0x80			/* invoke syscall */
 
