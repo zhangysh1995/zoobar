@@ -1,1 +1,23 @@
-## Place your answers here.
+Ex2:
+
+exploit-2a.py: [http.c:105]
+
+exploit-2b.py: [http.c:282]
+
+Ex3:
+
+exploit-3.py [http.c:105]
+
+All other buffer overflow vulnerabilities described in Exercise 1 can be
+exploited by injecting shellcode.
+
+Ex4:
+
+Yes.
+
+Ex5,6:
+
+Skipped.
+
+
+See WRITEUP.md for more details about Ex2,3,4.
