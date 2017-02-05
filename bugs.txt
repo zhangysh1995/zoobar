@@ -3,15 +3,63 @@
 # desc
 #
 
-[zookd.c:1612]
-description goes here. for example, the 'buf' variable can be
-overwritten by the 'msg' variable because ...
+[http.c:105]
 
-    <paste offending line(s) of code here>
+'url_decode' does not check the buffer size of 'reqpath'. When the URI in HTTP
+request header is too long, it may overflow the 'reqpath' buffer in [http.c:65],
+so the return address of process_client may be overwritten.
 
-[http.c:1512]
-another description.
+One can struct a well-constructed URI in HTTP request header to do attack.
 
-    <paste offending line(s) of code here>
+Can be prevented by stack canaries? Yes.
 
-# many more come here
+    <url_decode(reqpath, sp1);>
+
+
+[http.c:159]
+
+The buffer size of 'value' is small (512 bytes), while the buffer size of 'buf'
+can be 8192 bytes, so could 'sp' be that big.
+
+One can construct a HTTP request like:
+    CONTENT_TYPE: <a long content type>
+to do stack smashing attack.
+
+Can be prevented by stack canaries? Yes. 
+
+    <url_decode(value, sp);>
+
+
+[http.c:165]
+
+'sprintf' does not check the buffer size of 'envvar'. A long 'buf' may corrupt
+'envvar'.
+
+One can construct a HTTP request like:
+    <a long string>: lol
+to do stack smashing attack.
+
+Can be prevented by stack canaries? Yes. 
+
+    <sprintf(envvar, "HTTP_%s", buf);>
+
+
+[http.c:282]
+
+'strcat' does not check the dst buffer size of 'pn', so a well-constructed
+'name' (actually URI if you check the upstream code) may overwrite 'handler',
+then the later invoke to 'handler' may be called to arbitrary address to gain
+the program control.
+
+Can be prevented by stack canaries? *No*.
+
+    <strcat(pn, name);>
+
+[http.c:358]
+
+'dir_join' does not check the buffer size of 'name', so the return address of
+'http_serve_directory' may be overwritten.
+
+Can be prevented by stack canaries? Yes. 
+
+    <dir_join(name, pn, indices[i]);>

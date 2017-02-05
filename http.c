@@ -102,7 +102,7 @@ const char *http_request_line(int fd, char *reqpath, char *env, size_t *env_len)
     }
 
     /* decode URL escape sequences in the requested path into reqpath */
-    url_decode(reqpath, sp1);
+    url_decode(reqpath, sp1); // exploit
 
     envp += sprintf(envp, "REQUEST_URI=%s", reqpath) + 1;
 
@@ -156,13 +156,13 @@ const char *http_request_headers(int fd)
         }
 
         /* Decode URL escape sequences in the value */
-        url_decode(value, sp);
+        url_decode(value, sp); // exploit
 
         /* Store header in env. variable for application code */
         /* Some special headers don't use the HTTP_ prefix. */
         if (strcmp(buf, "CONTENT_TYPE") != 0 &&
             strcmp(buf, "CONTENT_LENGTH") != 0) {
-            sprintf(envvar, "HTTP_%s", buf);
+            sprintf(envvar, "HTTP_%s", buf); // exploit
             setenv(envvar, value, 1);
         } else {
             setenv(buf, value, 1);
@@ -279,7 +279,7 @@ void http_serve(int fd, const char *name)
     getcwd(pn, sizeof(pn));
     setenv("DOCUMENT_ROOT", pn, 1);
 
-    strcat(pn, name);
+    strcat(pn, name); // exploit
     split_path(pn);
 
     if (!stat(pn, &st))
@@ -355,7 +355,7 @@ void http_serve_directory(int fd, const char *pn) {
     int i;
 
     for (i = 0; indices[i]; i++) {
-        dir_join(name, pn, indices[i]);
+        dir_join(name, pn, indices[i]); // exploit
         if (stat(name, &st) == 0 && S_ISREG(st.st_mode)) {
             dir_join(name, getenv("SCRIPT_NAME"), indices[i]);
             break;
