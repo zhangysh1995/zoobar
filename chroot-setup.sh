@@ -56,7 +56,7 @@ cp /etc/resolv.conf /jail/etc/
 mkdir -p /jail/usr/share/zoneinfo
 cp -r /usr/share/zoneinfo/America /jail/usr/share/zoneinfo/
 
-create_socket_dir /jail/echosvc 61010:61010 755
+create_socket_dir /jail/echosvc 400:400 755
 create_socket_dir /jail/zoobar 201:200 755
 
 mkdir -p /jail/tmp
@@ -76,6 +76,9 @@ for f in /jail/zoobar/*.py; do
     set_perms 201:200 550 $f
 done
 set_perms 202:200 550 /jail/zoobar/index.cgi
+set_perms root:root 755 /jail/zoobar/echo-server.py
+set_perms root:root 755 /jail/zoobar/rpclib.py
+set_perms root:root 755 /jail/zoobar/debug.py
 
 # db
 set_perms 201:200 755 /jail/zoobar/db
@@ -93,3 +96,5 @@ set_perms 203:200 550 /jail/zoobar/media
 for f in /jail/zoobar/media/*; do
     set_perms 203:200 440 $f
 done
+
+rm -f /jail/zoobar/*.pyc
