@@ -2,6 +2,8 @@ from zoodb import *
 from debug import *
 
 import hashlib
+import os
+import pbkdf2
 import random
 
 def newtoken(db, cred):
@@ -15,6 +17,7 @@ def login(username, password):
     cred = db.query(Cred).get(username)
     if not cred:
         return None
+    password = pbkdf2.PBKDF2(password, cred.salt).hexread(32)
     if cred.password == password:
         return newtoken(db, cred)
     else:
@@ -25,9 +28,11 @@ def register(username, password):
     cred = db.query(Cred).get(username)
     if cred:
         return None
+    salt = ''.join(map(lambda c: chr(ord(c) % 128), os.urandom(16)))
     newcred = Cred()
     newcred.username = username
-    newcred.password = password
+    newcred.password = pbkdf2.PBKDF2(password, salt).hexread(32)
+    newcred.salt = salt
     db.add(newcred)
     db.commit()
 
