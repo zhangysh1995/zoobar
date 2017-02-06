@@ -57,6 +57,7 @@ mkdir -p /jail/usr/share/zoneinfo
 cp -r /usr/share/zoneinfo/America /jail/usr/share/zoneinfo/
 
 create_socket_dir /jail/echosvc 61010:61010 755
+create_socket_dir /jail/zoobar 201:200 755
 
 mkdir -p /jail/tmp
 chmod a+rwxt /jail/tmp
@@ -70,8 +71,25 @@ rm -rf /jail/zoobar/db
 python /jail/zoobar/zoodb.py init-person
 python /jail/zoobar/zoodb.py init-transfer
 
-set_perms 201:201 755 /jail/zoobar/db
-set_perms 201:201 755 /jail/zoobar/db/person
-set_perms 201:201 750 /jail/zoobar/db/person/person.db
-set_perms 201:201 755 /jail/zoobar/db/transfer
-set_perms 201:201 750 /jail/zoobar/db/transfer/transfer.db
+# python executables
+for f in /jail/zoobar/*.py; do
+    set_perms 201:200 550 $f
+done
+set_perms 202:200 550 /jail/zoobar/index.cgi
+
+# db
+set_perms 201:200 755 /jail/zoobar/db
+set_perms 201:200 755 /jail/zoobar/db/person
+set_perms 201:200 700 /jail/zoobar/db/person/person.db
+set_perms 201:200 755 /jail/zoobar/db/transfer
+set_perms 201:200 700 /jail/zoobar/db/transfer/transfer.db
+
+# static files
+set_perms 203:200 550 /jail/zoobar/templates
+for f in /jail/zoobar/templates/*; do
+    set_perms 203:200 440 $f
+done
+set_perms 203:200 550 /jail/zoobar/media
+for f in /jail/zoobar/media/*; do
+    set_perms 203:200 440 $f
+done
