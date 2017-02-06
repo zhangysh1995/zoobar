@@ -58,6 +58,7 @@ cp -r /usr/share/zoneinfo/America /jail/usr/share/zoneinfo/
 
 create_socket_dir /jail/echosvc 203:200 755
 create_socket_dir /jail/authsvc 204:200 755
+create_socket_dir /jail/banksvc 205:200 755
 
 mkdir -p /jail/tmp
 chmod a+rwxt /jail/tmp
@@ -71,6 +72,7 @@ rm -rf /jail/zoobar/db
 python /jail/zoobar/zoodb.py init-person
 python /jail/zoobar/zoodb.py init-transfer
 python /jail/zoobar/zoodb.py init-cred
+python /jail/zoobar/zoodb.py init-bank
 
 # python executables
 for f in /jail/zoobar/*.py; do
@@ -84,8 +86,10 @@ set_perms 200:200 770 /jail/zoobar/db/person
 set_perms 200:200 660 /jail/zoobar/db/person/person.db
 set_perms 204:200 700 /jail/zoobar/db/cred
 set_perms 204:200 600 /jail/zoobar/db/cred/cred.db
-set_perms 201:200 700 /jail/zoobar/db/transfer
-set_perms 201:200 600 /jail/zoobar/db/transfer/transfer.db
+set_perms 205:200 770 /jail/zoobar/db/transfer
+set_perms 205:200 660 /jail/zoobar/db/transfer/transfer.db # TODO: Can group open it as readonly?
+set_perms 205:200 700 /jail/zoobar/db/bank
+set_perms 205:200 600 /jail/zoobar/db/bank/bank.db
 
 # static files
 chmod -w /jail/zoobar/templates

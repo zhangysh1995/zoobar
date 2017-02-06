@@ -1,6 +1,7 @@
 from zoodb import *
 from debug import *
 
+import bank_client
 import hashlib
 import os
 import pbkdf2
@@ -36,11 +37,13 @@ def register(username, password):
     db.add(newcred)
     db.commit()
 
-    db_person = person_setup()
+    persondb = person_setup()
     newperson = Person()
     newperson.username = username
-    db_person.add(newperson)
-    db_person.commit() # TODO: transaction?
+    persondb.add(newperson)
+    persondb.commit()
+
+    bank_client.new(username)
 
     return newtoken(db, newcred)
 

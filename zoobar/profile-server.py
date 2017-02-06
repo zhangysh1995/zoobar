@@ -8,6 +8,7 @@ import urllib
 import hashlib
 import socket
 import bank
+import bank_client
 import zoodb
 
 from debug import *
@@ -44,11 +45,11 @@ class ProfileAPIServer(rpclib.RpcServer):
             return None
         return { 'username': p.username,
                  'profile': p.profile,
-                 'zoobars': bank.balance(username),
+                 'zoobars': bank_client.balance(username),
                }
 
     def rpc_xfer(self, target, zoobars):
-        bank.transfer(self.user, target, zoobars)
+        bank_client.transfer(self.user, target, zoobars)
 
 def run_profile(pcode, profile_api_client):
     globals = {'api': profile_api_client}
