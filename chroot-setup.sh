@@ -59,7 +59,7 @@ cp -r /usr/share/zoneinfo/America /jail/usr/share/zoneinfo/
 create_socket_dir /jail/echosvc 203:200 755
 create_socket_dir /jail/authsvc 204:200 755
 create_socket_dir /jail/banksvc 205:200 755
-create_socket_dir /jail/profilesvc 0:200 755
+create_socket_dir /jail/profilesvc 999:200 755
 
 mkdir -p /jail/tmp
 chmod a+rwxt /jail/tmp
