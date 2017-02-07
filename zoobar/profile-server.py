@@ -26,6 +26,10 @@ class ProfileAPIServer(rpclib.RpcServer):
         cred = db.query(zoodb.Cred).get(user)
         self.token = cred.token
 
+        # give up root
+        os.setresuid(206, 206, 206)
+        os.setresgid(200, 200, 200)
+
     def rpc_get_self(self):
         return self.user
 
@@ -63,7 +67,11 @@ class ProfileServer(rpclib.RpcServer):
     def rpc_run(self, pcode, user, visitor):
         uid = 999 # an unused uid for sandbox
 
-        userdir = '/tmp'
+        userdir = '/tmp/' + ''.join(x.encode('hex') for x in user)
+        if not os.path.exists(userdir):
+            os.mkdir(userdir)
+        os.chown(userdir, uid, uid)
+        os.chmod(userdir, 0700)
 
         (sa, sb) = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM, 0)
         pid = os.fork()
