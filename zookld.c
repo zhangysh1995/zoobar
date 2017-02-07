@@ -171,6 +171,8 @@ pid_t launch_svc(CONF *conf, const char *name)
         /* chroot into dir */
         if (chroot(dir) < 0)
             err(1, "chroot");
+        if (chdir("/") < 0)
+            err(1, "chdir");
     }
 
     /* setgid and chroot require privilege, so setuid should be done last */

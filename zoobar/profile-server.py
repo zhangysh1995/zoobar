@@ -22,6 +22,10 @@ class ProfileAPIServer(rpclib.RpcServer):
         self.user = user
         self.visitor = visitor
 
+        db = zoodb.cred_setup()
+        cred = db.query(zoodb.Cred).get(user)
+        self.token = cred.token
+
     def rpc_get_self(self):
         return self.user
 
@@ -49,7 +53,7 @@ class ProfileAPIServer(rpclib.RpcServer):
                }
 
     def rpc_xfer(self, target, zoobars):
-        bank_client.transfer(self.user, target, zoobars)
+        bank_client.transfer(self.user, target, zoobars, self.token)
 
 def run_profile(pcode, profile_api_client):
     globals = {'api': profile_api_client}
@@ -57,7 +61,7 @@ def run_profile(pcode, profile_api_client):
 
 class ProfileServer(rpclib.RpcServer):
     def rpc_run(self, pcode, user, visitor):
-        uid = 0
+        uid = 999 # an unused uid for sandbox
 
         userdir = '/tmp'
 
