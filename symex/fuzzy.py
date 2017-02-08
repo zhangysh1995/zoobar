@@ -765,5 +765,34 @@ def concolic_test(testfunc, maxiter = 100, verbose = 0):
     ##   the overall constraint, so be sure to preserve values
     ##   from the initial input (concrete_values).
 
+    for i in xrange(len(cur_path_constr)):
+      new_path_constr = []
+      for j in xrange(len(cur_path_constr)):
+        if j != i:
+          new_path_constr.append(cur_path_constr[j])
+          continue
+
+        # sanity check to ensure we are handling a sym_eq object.
+        assert isinstance(cur_path_constr[j], sym_eq)
+        sym, v = cur_path_constr[j].a, cur_path_constr[j].b
+
+        # flip the symbol at j.
+        new_path_constr.append(sym_eq(sym, sym_not(v)))
+
+      new_ast = sym_and(*new_path_constr)
+
+      if new_ast in checked:
+        continue
+      checked.add(new_ast)
+
+      # invoke Z3 SMT solver.
+      (ok, model) = fork_and_check(new_ast)
+
+      if ok == z3.sat:
+        new_concrete_values = concrete_values.copy()
+        for var, val in model.iteritems():
+          new_concrete_values[var] = val
+        inputs.add(new_concrete_values, cur_path_constr_callers[i])
+
   if verbose > 0:
     print 'Stopping after', iter, 'iterations'
