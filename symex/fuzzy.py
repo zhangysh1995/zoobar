@@ -566,9 +566,12 @@ class concolic_str(str):
     res = o + self.__v
     return concolic_str(sym_concat(ast(o), ast(self)), res)
 
-  ## Exercise 4: your code here.
-  ## Implement symbolic versions of string length (override __len__)
-  ## and contains (override __contains__).
+  def __len__(self):
+    return concolic_int(sym_length(ast(self)), len(self.__v))
+
+  def __contains__(self, o):
+    res = self.__v.__contains__(o)
+    return concolic_bool(sym_contains(ast(self), ast(o)), res)
 
   def startswith(self, o):
     res = self.__v.startswith(o)
@@ -728,9 +731,7 @@ def concolic_test(testfunc, maxiter = 100, verbose = 0):
     ## for each branch, invoke Z3 to find an input that would go
     ## the other way, and add it to the list of inputs to explore.
 
-    ## Exercise 3: your code here.
-    ##
-    ## Here's a possible plan of attack:
+    ## Here's the possible plan of attack:
     ##
     ## - Iterate over the set of branches in cur_path_constr.
     ##
@@ -779,20 +780,22 @@ def concolic_test(testfunc, maxiter = 100, verbose = 0):
         # flip the symbol at j.
         new_path_constr.append(sym_eq(sym, sym_not(v)))
 
-      new_ast = sym_and(*new_path_constr)
+      # also drop some tail constraints.
+      for k in xrange(i, len(cur_path_constr)):
+        new_ast = sym_and(*new_path_constr[0:k+1])
 
-      if new_ast in checked:
-        continue
-      checked.add(new_ast)
+        if new_ast in checked:
+          continue
+        checked.add(new_ast)
 
-      # invoke Z3 SMT solver.
-      (ok, model) = fork_and_check(new_ast)
+        # invoke Z3 SMT solver.
+        (ok, model) = fork_and_check(new_ast)
 
-      if ok == z3.sat:
-        new_concrete_values = concrete_values.copy()
-        for var, val in model.iteritems():
-          new_concrete_values[var] = val
-        inputs.add(new_concrete_values, cur_path_constr_callers[i])
+        if ok == z3.sat:
+          new_concrete_values = concrete_values.copy()
+          for var, val in model.iteritems():
+            new_concrete_values[var] = val
+          inputs.add(new_concrete_values, cur_path_constr_callers[i])
 
   if verbose > 0:
     print 'Stopping after', iter, 'iterations'
