@@ -3,6 +3,7 @@ import z3
 import multiprocessing
 import sys
 import collections
+import copy
 import Queue
 import signal
 import operator
@@ -768,7 +769,7 @@ def concolic_test(testfunc, maxiter = 100, verbose = 0):
 
     for i in xrange(len(cur_path_constr)):
       new_path_constr = []
-      for j in xrange(len(cur_path_constr)):
+      for j in xrange(i+1):
         if j != i:
           new_path_constr.append(cur_path_constr[j])
           continue
@@ -780,22 +781,21 @@ def concolic_test(testfunc, maxiter = 100, verbose = 0):
         # flip the symbol at j.
         new_path_constr.append(sym_eq(sym, sym_not(v)))
 
-      # also drop some tail constraints.
-      for k in xrange(i, len(cur_path_constr)):
-        new_ast = sym_and(*new_path_constr[0:k+1])
+      sorted_path_constr = sorted(set(new_path_constr))
+      new_ast = sym_and(*sorted_path_constr)
 
-        if new_ast in checked:
-          continue
-        checked.add(new_ast)
+      if new_ast in checked:
+        continue
+      checked.add(copy.deepcopy(new_ast))
 
-        # invoke Z3 SMT solver.
-        (ok, model) = fork_and_check(new_ast)
+      # invoke Z3 SMT solver.
+      (ok, model) = fork_and_check(new_ast)
 
-        if ok == z3.sat:
-          new_concrete_values = concrete_values.copy()
-          for var, val in model.iteritems():
-            new_concrete_values[var] = val
-          inputs.add(new_concrete_values, cur_path_constr_callers[i])
+      if ok == z3.sat:
+        new_concrete_values = concrete_values.copy()
+        for var, val in model.iteritems():
+          new_concrete_values[var] = val
+        inputs.add(new_concrete_values, cur_path_constr_callers[i])
 
   if verbose > 0:
     print 'Stopping after', iter, 'iterations'
