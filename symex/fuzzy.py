@@ -3,7 +3,6 @@ import z3
 import multiprocessing
 import sys
 import collections
-import copy
 import Queue
 import signal
 import operator
@@ -781,12 +780,14 @@ def concolic_test(testfunc, maxiter = 100, verbose = 0):
         # flip the symbol at j.
         new_path_constr.append(sym_eq(sym, sym_not(v)))
 
-      sorted_path_constr = sorted(set(new_path_constr))
-      new_ast = sym_and(*sorted_path_constr)
+      # Slow!
+      ## sorted_path_constr = sorted(set(new_path_constr))
+      ## new_ast = sym_and(*sorted_path_constr)
+      new_ast = sym_and(*new_path_constr)
 
       if new_ast in checked:
         continue
-      checked.add(copy.deepcopy(new_ast))
+      checked.add(new_ast)
 
       # invoke Z3 SMT solver.
       (ok, model) = fork_and_check(new_ast)

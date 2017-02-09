@@ -18,3 +18,4 @@
 /lab*-handin.tar.gz
 /symex/*.pyc
 /symex/z3py/*.pyc
+/typescript
