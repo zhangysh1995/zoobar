@@ -79,19 +79,25 @@ further.
 We will use two different exploits to attack these two vulnerabilities, namely
 the first one is code injection which requires to put the shellcode on an
 executable stack, and the second one is return-to-libc attack which does not
-need the strict requirement.
+need that strict requirement.
 
 ### Exploit 1
 
-TODO
+TODO: Stack layout of the attack.
 
 exploit-2a.py
 exploit-3.py
 exploit-4a.py
 
+Key point: overwrite the return address of the host function.
+
 ### Exploit 2
 
-TODO
+TODO: Stack layout of the attack.
 
 exploit-2b.py
 exploit-4b.py
+
+Key point: overwrite `handler` and `fd (ebp+8)`.
+
+Key point 2: stack layout of the return-to-libc attack.
