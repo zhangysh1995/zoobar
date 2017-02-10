@@ -8,11 +8,11 @@ PersonBase = declarative_base()
 TransferBase = declarative_base()
 CredBase = declarative_base()
 BankBase = declarative_base()
+ProfileBase = declarative_base()
 
 class Person(PersonBase):
     __tablename__ = "person"
     username = Column(String(128), primary_key=True)
-    profile = Column(String(5000), nullable=False, default="")
 
 class Transfer(TransferBase):
     __tablename__ = "transfer"
@@ -33,6 +33,11 @@ class Bank(BankBase):
     __tablename__ = "bank"
     username = Column(String(128), primary_key=True)
     zoobars = Column(Integer, nullable=False, default=10)
+
+class Profile(ProfileBase):
+    __tablename__ = "profile"
+    username = Column(String(128), primary_key=True)
+    profile = Column(String(5000), nullable=False, default="")
 
 def dbsetup(name, base):
     thisdir = os.path.dirname(os.path.abspath(__file__))
@@ -59,10 +64,13 @@ def cred_setup():
 def bank_setup():
     return dbsetup("bank", BankBase)
 
+def profile_setup():
+    return dbsetup("profile", ProfileBase)
+
 import sys
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print "Usage: %s [init-person|init-transfer|init-cred|init-bank]" % sys.argv[0]
+        print "Usage: %s [init-person|init-transfer|init-cred|init-bank|init-profile]" % sys.argv[0]
         exit(1)
 
     cmd = sys.argv[1]
@@ -74,5 +82,7 @@ if __name__ == "__main__":
         cred_setup()
     elif cmd == 'init-bank':
         bank_setup()
+    elif cmd == 'profile-bank':
+        profile_setup()
     else:
         raise Exception("unknown command %s" % cmd)

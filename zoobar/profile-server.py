@@ -9,6 +9,7 @@ import hashlib
 import socket
 import bank
 import bank_client
+import profman_client
 import zoodb
 
 from debug import *
@@ -52,7 +53,6 @@ class ProfileAPIServer(rpclib.RpcServer):
         if not p:
             return None
         return { 'username': p.username,
-                 'profile': p.profile,
                  'zoobars': bank_client.balance(username),
                }
 
@@ -64,7 +64,15 @@ def run_profile(pcode, profile_api_client):
     exec pcode in globals
 
 class ProfileServer(rpclib.RpcServer):
-    def rpc_run(self, pcode, user, visitor):
+    def rpc_run(self, user, visitor):
+        pcode = profman_client.get(user)
+
+        if not pcode.startswith('#!python'):
+            return pcode
+
+        pcode = pcode.encode('ascii', 'ignore')
+        pcode = pcode.replace('\r\n', '\n')
+
         uid = 999 # an unused uid for sandbox
 
         userdir = '/tmp/' + ''.join(x.encode('hex') for x in user)
@@ -86,6 +94,7 @@ class ProfileServer(rpclib.RpcServer):
         os.waitpid(pid, 0)
 
         sandbox = sandboxlib.Sandbox(userdir, uid, '/profilesvc/lockfile')
+
         with rpclib.RpcClient(sa) as profile_api_client:
             return sandbox.run(lambda: run_profile(pcode, profile_api_client))
 

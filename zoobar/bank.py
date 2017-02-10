@@ -8,11 +8,13 @@ def new(username):
     bankdb = bank_setup()
     bank = bankdb.query(Bank).get(username)
     if bank:
-        raise ValueError()
+        return False
     newbank = Bank()
     newbank.username = username
     bankdb.add(newbank)
     bankdb.commit()
+
+    return True
 
 def transfer(sender, recipient, zoobars, token):
     bankdb = bank_setup()
@@ -22,10 +24,6 @@ def transfer(sender, recipient, zoobars, token):
     # sender or recipient is not found.
     if senderp is None or recipientp is None:
         return False
-
-    # transfering between the same account.
-    if sender == recipient:
-        return True
 
     # invalid token.
     if not auth_client.check_token(sender, token):

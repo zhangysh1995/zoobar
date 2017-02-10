@@ -3,15 +3,15 @@ from login import requirelogin
 from debug import *
 from zoodb import *
 
+import profman_client
+
 @catch_err
 @requirelogin
 def index():
     if 'profile_update' in request.form:
-        persondb = person_setup()
-        person = persondb.query(Person).get(g.user.person.username)
-        person.profile = request.form['profile_update']
-        persondb.commit()
+        profile = request.form['profile_update']
+        profman_client.update(g.user.person.username, profile, g.user.token)
 
         ## also update the cached version (see login.py)
-        g.user.person.profile = person.profile
+        g.user.person.profile = profile
     return render_template('index.html')
